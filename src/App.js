@@ -12,6 +12,7 @@ import About from './components/pages/About';
 class App extends Component {
   state = {
     users:[],
+    repos:[],
     user: null,
     loading: false,
     alert: null
@@ -41,15 +42,25 @@ class App extends Component {
   };
 
   //Get single Github user
- getUser = async username => {
+ getUser = async (username) => {
   this.setState({loading: true});
   const res = await axios.get(`https://api.github.com/users/${username}`);
   this.setState({user: res.data, loading: false});
+  console.log(res.data);
+  console.log(`https://api.github.com/users/${username}`);
+
+ }
+
+ //Get user repos
+ getUserRepos = async (username) => {
+  this.setState({loading: true});
+  const res = await axios.get(`https://api.github.com/users/${username}/repos?per_page=5&sort=created:asc`);
+  this.setState({repos: res.data, loading: false});
  }
 
 
   render(){
-    const{users, loading, user} = this.state
+    const{users, loading, user, repos} = this.state
     return (
      <Router>
        <div className='App'>
@@ -68,7 +79,7 @@ class App extends Component {
             }></Route>
             <Route exact path='/about' element={<About/>}/>
             <Route exact path='/user/:login' render={ (props) =>
-              <User {...props} getUser={this.getUser} user={user} loading={loading}/>}>
+              <User {...props} getUser={this.getUser} getUserRepos={this.getUserRepos} user={user} repos={repos} loading={loading}/>}>
             </Route>
           </Routes>
         </div>
